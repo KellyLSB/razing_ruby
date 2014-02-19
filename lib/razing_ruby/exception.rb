@@ -1,3 +1,5 @@
+require 'razing_ruby/kernel'
+
 class Exception
   attr_reader :call_binding
 

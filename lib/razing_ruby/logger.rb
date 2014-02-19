@@ -1,6 +1,8 @@
 require 'logger'
 
 class Logger
+  attr_reader :logdev
+
   def add_logger(*a)
     @logdev.add_logger(*a)
   end
@@ -29,7 +31,7 @@ class Logger
     # Write a log
     def raze_write(*a, &b)
       results = [ruby_write(*a, &b)]
-      @devs.keys.reduce(results) do |out, logger|
+      @loggers.values.map(&:logdev).reduce(results) do |out, logger|
         logger.respond_to?(:write) ? out << logger.write(*a, &b) : out
       end
     end
@@ -37,13 +39,14 @@ class Logger
     # Add a logger
     def add_logger(name, logger = nil)
       name, logger = __prep_logger__(name, logger)
+      return false if logger.logdev == self
       @loggers[name] = logger
     end
 
     # Remove a logger
     def del_logger(name)
       @loggers[name].close
-      @devs.delete(name)
+      @loggers.delete(name)
     end
 
     # Get a logger
